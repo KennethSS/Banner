@@ -16,7 +16,7 @@ class BannerView @JvmOverloads constructor(
   private val infinity: Boolean
 
   private val bannerPagerCount: TextView by lazy { findViewById(R.id.banner_pager_count) }
-  private val bannerPager: ViewPager2 by lazy { findViewById<ViewPager2>(R.id.banner_pager) }
+  private val bannerPager: ViewPager2 by lazy { findViewById(R.id.banner_pager) }
 
   private val scrollHandler = ScrollHandler(::slideNext, ::startAutoSlide)
 
