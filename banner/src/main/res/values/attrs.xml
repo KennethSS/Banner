@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="BannerView">
+    <attr name="ratio_width" format="integer"/>
+    <attr name="ratio_height" format="integer"/>
+
+    <attr name="infinity" format="boolean"/>
+    <attr name="autoScroll" format="boolean"/>
+  </declare-styleable>
+</resources>
