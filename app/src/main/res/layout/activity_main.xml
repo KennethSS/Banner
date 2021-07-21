@@ -5,16 +5,13 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:orientation="vertical"
-  tools:context=".MainActivity">
+  android:orientation="vertical">
 
-
-  <com.solar.kenneth.banner.BannerView
-    android:id="@+id/banner_view"
+  <androidx.recyclerview.widget.RecyclerView
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:ratio_width="18"
-    app:ratio_height="13"
-    app:infinity="true"
-    app:autoScroll="true"/>
+    android:layout_height="match_parent"
+    android:id="@+id/main_list_view"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    tools:context=".MainActivity">
+  </androidx.recyclerview.widget.RecyclerView>
 </LinearLayout>

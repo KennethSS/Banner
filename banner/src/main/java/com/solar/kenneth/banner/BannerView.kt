@@ -5,11 +5,13 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.*
 import androidx.viewpager2.widget.ViewPager2
+import com.solar.kenneth.banner.ScrollHandler.Companion.HANDLER_MESSAGE_ID_SLIDE_NEXT
 
 class BannerView @JvmOverloads constructor(
   context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr) {
+) : ConstraintLayout(context, attrs, defStyleAttr), LifecycleObserver {
 
   private val ratioWidth: Int
   private val ratioHeight: Int
@@ -18,12 +20,12 @@ class BannerView @JvmOverloads constructor(
   private val bannerPagerCount: TextView by lazy { findViewById(R.id.banner_pager_count) }
   private val bannerPager: ViewPager2 by lazy { findViewById(R.id.banner_pager) }
 
-  private val scrollHandler = ScrollHandler(::slideNext, ::startAutoSlide)
+  private val scrollHandler = ScrollHandler(::slideNext)
 
   private var autoScroll: Boolean = true
   private var bannerList: List<Banner> = listOf()
 
-  private var bannerViewListener: BannerViewListener? = null
+  private val bannerViewListeners : ArrayList<BannerViewListener> by lazy { arrayListOf() }
 
   init {
     context.theme.obtainStyledAttributes(
@@ -32,10 +34,10 @@ class BannerView @JvmOverloads constructor(
       0, 0
     ).apply {
       try {
-        autoScroll = getBoolean(R.styleable.BannerView_autoScroll, true)
-        infinity = getBoolean(R.styleable.BannerView_infinity, false)
-        ratioWidth = getInt(R.styleable.BannerView_ratio_width, 3)
-        ratioHeight = getInt(R.styleable.BannerView_ratio_height, 2)
+        autoScroll = getBoolean(R.styleable.BannerView_autoScroll, DEFAULT_AUTO_START)
+        infinity = getBoolean(R.styleable.BannerView_infinity, DEFAULT_INFINITY)
+        ratioWidth = getInt(R.styleable.BannerView_ratio_width, DEFAULT_BANNER_WIDTH)
+        ratioHeight = getInt(R.styleable.BannerView_ratio_height, DEFAULT_BANNER_HEIGHT)
       } finally {
         recycle()
       }
@@ -55,18 +57,25 @@ class BannerView @JvmOverloads constructor(
           })
       )
     }
-
-    startAutoSlide()
   }
 
-  fun setBannerViewListener(bannerViewListener: BannerViewListener) {
-    this.bannerViewListener = bannerViewListener
+  fun addBannerViewListener(bannerViewListener: BannerViewListener) {
+    bannerViewListeners.add(bannerViewListener)
   }
 
   fun setBannerList(bannerList: List<Banner>) {
     this.bannerList = bannerList
-    bannerPager.adapter = BannerViewPageAdapter(bannerList, this.bannerViewListener)
+    bannerPager.adapter = BannerViewPageAdapter(bannerList) { iv, banner ->
+      bannerViewListeners.forEach {
+        it.onBannerBinding(iv, banner)
+      }
+    }
     bannerPagerCount.text = context.getString(R.string.pager_count, 1, bannerList.count())
+  }
+
+  override fun onAttachedToWindow() {
+    super.onAttachedToWindow()
+    findViewTreeLifecycleOwner()?.lifecycle?.addObserver(this)
   }
 
   private fun slideNext() {
@@ -79,20 +88,29 @@ class BannerView @JvmOverloads constructor(
       if (infinity) bannerPager.setCurrentItem(0, false)
       else stopAutoSlide()
     }
-  }
 
-  private fun startAutoSlide() {
     if (autoScroll) {
-      scrollHandler.removeMessages(HANDLER_MESSAGE_ID)
-      scrollHandler.sendEmptyMessageDelayed(HANDLER_MESSAGE_ID, 2000L)
+      startAutoSlide()
     }
   }
 
-  private fun stopAutoSlide() {
-    scrollHandler.removeMessages(HANDLER_MESSAGE_ID)
+  @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+  fun startAutoSlide() {
+    scrollHandler.removeMessages(HANDLER_MESSAGE_ID_SLIDE_NEXT)
+    scrollHandler.sendEmptyMessageDelayed(HANDLER_MESSAGE_ID_SLIDE_NEXT, DEFAULT_SLIDE_TIME)
+  }
+
+  @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+  fun stopAutoSlide() {
+    scrollHandler.removeMessages(HANDLER_MESSAGE_ID_SLIDE_NEXT)
   }
 
   companion object {
-    private const val HANDLER_MESSAGE_ID = 0
+    private const val DEFAULT_SLIDE_TIME = 2000L
+
+    private const val DEFAULT_BANNER_WIDTH = 3
+    private const val DEFAULT_BANNER_HEIGHT = 2
+    private const val DEFAULT_INFINITY = false
+    private const val DEFAULT_AUTO_START = true
   }
 }
