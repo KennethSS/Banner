@@ -13,6 +13,7 @@
   </p>
 
 
+<img src="https://github.com/KennethSS/Banner/blob/master/preview/preview.gif" align="right" width="30%"></img>
 
 
   ### Dependency Gradle 
