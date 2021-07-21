@@ -70,27 +70,27 @@ class RecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
       holder.recycled()
     }
     super.onViewRecycled(holder)
-  }
+	}
 }
 
 class BannerViewHolder(view: View) : RecyclerView.ViewHolder(view) { 
-  init {
-    bannerView.addBannerViewListener(object: BannerViewListener {
-      override fun onBannerBinding(iv: ImageView, banner: Banner) {
-        
-      }
-    })
+    init {
+      bannerView.addBannerViewListener(object: BannerViewListener {
+        override fun onBannerBinding(iv: ImageView, banner: Banner) {
 
-    bannerView.setBannerList(lists)
-  }
+        }
+      })
 
-  fun bind() {
-    bannerView.startAutoSlide()
-  }
+      bannerView.setBannerList(lists)
+    }
 
-  fun recycled() {
-    bannerView.stopAutoSlide()
-  }
+    fun bind() {
+      bannerView.startAutoSlide()
+    }
+
+    fun recycled() {
+      bannerView.stopAutoSlide()
+    }
 }
 
   ```
